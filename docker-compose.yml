@@ -1,5 +1,6 @@
 services:
   app:
+    image: lab5-backend
     build: .
     restart: unless-stopped
     ports:
@@ -40,7 +41,7 @@ services:
       - POSTGRES_USER=${POSTGRES_USER:?'POSTGRES_USER is required'}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?'POSTGRES_PASSWORD is required'}
     ports:
-      - ${POSTGRES_HOST_ADDRESS:?'POSTGRES_HOST_ADDRESS is required'}:${POSTGRES_HOST_PORT:?'POSTGRES_HOST_PORT is required'}:${CONST_POSTGRESQL_DEFAULT_PORT:?'CONST_POSTGRESQL_DEFAULT_PORT is required'}
+      - ${POSTGRES_HOST_ADDRESS:?'POSTGRES_HOST_ADDRESS is required'}:5433:${CONST_POSTGRESQL_DEFAULT_PORT:?'CONST_POSTGRESQL_DEFAULT_PORT is required'}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/app/data/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -73,14 +74,14 @@ services:
         condition: service_healthy
 
   caddy:
-    build: frontend/
+    image: lab5-frontend
     depends_on:
       - app
     environment:
       - CADDY_CONTAINER_PORT=${CADDY_CONTAINER_PORT:?'CADDY_CONTAINER_PORT is required'}
       - APP_CONTAINER_PORT=${APP_CONTAINER_PORT:?'APP_CONTAINER_PORT is required'}
     ports:
-      - ${CADDY_HOST_ADDRESS:?'CADDY_HOST_ADDRESS is required'}:${CADDY_HOST_PORT:?'CADDY_HOST_PORT is required'}:${CADDY_CONTAINER_PORT}
+      - ${CADDY_HOST_ADDRESS:?'CADDY_HOST_ADDRESS is required'}:42002:${CADDY_CONTAINER_PORT:?'CADDY_CONTAINER_PORT is required'}
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile
 
